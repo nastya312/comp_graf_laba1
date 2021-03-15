@@ -23,35 +23,43 @@ bool Plane::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) c
 bool Sphere::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const
 {
 
-    float3 k = ray.origin - center;
+    float3 k = ray.origin - center; // 
+
+    // расчет коэффициентов для уравнения
 
     float a = dot(ray.direction, ray.direction);
     // берем квадрат вектора скорости
     float b = dot(2 * k, ray.direction);
     // 2 * (точка испускания луча - центр сферы) * вектор скорости
-    float c = dot(k, k) - r_sq;
+    float c = dot(k, k) - radius* radius;
     // разность точки испускания и центра - квадрат радиуса
 
-    float d = b * b - 4 * a * c;
+    float discriminant = b * b - 4 * a * c;
 
-    if (d < 0) return false;
+    if (discriminant < 0) return false;
 
-    surf.t = (-b - sqrt(d)) / 2 * a;
+   //  
+   
+     auto root1 = (-b - sqrt(discriminant)) / 2 * a; // первый корень
+     auto root2 = (-b + sqrt(discriminant)) / 2 * a; // второй корень 
 
-    if (surf.t > t_min && surf.t < t_max)
+    if (root1 > t_min && root1 < t_max) //проверка границ и присвоение модифицированных значений
     {
+        surf.t = root1;
         surf.hit = true;
         surf.hitPoint = ray.origin + surf.t * ray.direction;
+        // расчет точки пересечения по уравнению вектора (луча)
         surf.normal = normalize(surf.hitPoint - center);
+        // мы пересчитываем нормаль для новой поверхности 
         surf.m_ptr = m_ptr;
         return true;
-    }
-
-    surf.t = (-b + sqrt(d)) / 2 * a;
-    if (surf.t > t_min && surf.t < t_max)
+    } 
+    else if (root2 > t_min && root2 < t_max) //проверка границ и присвоение модифицированных значений 
     {
+        surf.t = root2;
         surf.hit = true;
         surf.hitPoint = ray.origin + surf.t * ray.direction;
+        // расчет точки пересечения по уравнению вектора (луча)
         surf.normal = normalize(surf.hitPoint - center);
         // мы пересчитываем нормаль для новой поверхности 
         surf.m_ptr = m_ptr;
@@ -60,6 +68,33 @@ bool Sphere::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) 
 
     return false;
 }
+
+//void create_triangle(const Ray& ray, float3 a, float3 b, float3 c)
+//{
+//    float3 E1 = b - a; // вектор одной стороны
+//    float3 E2 = c - a; // вектор второй стороны
+//    float3 T = ray.origin - a; // a - точка, которую мы перенесли в новый центр координат (барицентрические координаты)
+//    float3 D = ray.direction; // вектор скорости
+//    float3 P = cross(D, E2);
+//    float3 Q = cross(T, E1);
+//    float det = dot(E1, P); // время
+//
+//    if (det < tmin && det > tmax) {
+//        return false;
+//    }
+//
+//    float invDet = 1 / det;
+//
+//    // барицентрические координаты u и v должны удовлетворять условиям (оба больше 0, но сумма меньше 1)
+//    // расчитываем три параметра из матрицы
+//    float u = dot(T, P) * invDet; // находим из формулы 
+//    float v = dot(ray.direction, Q) * invDet;
+//    surf.t = dot(E2, Q) * invDet;
+//
+//    if ((u < 0 || u > 1) || (v < 0 || u + v > 1)) {
+//        return false;
+//    }
+//}
 
 bool Triangle::Intersect(const Ray& ray, float tmin, float tmax, SurfHit& surf) const
 {
@@ -70,28 +105,20 @@ bool Triangle::Intersect(const Ray& ray, float tmin, float tmax, SurfHit& surf) 
     float3 P = cross(D, E2);
     float3 Q = cross(T, E1);
     float det = dot(E1, P); // время
-
     if (det < tmin && det > tmax) {
         return false;
     }
-
     float invDet = 1 / det;
-
     // барицентрические координаты u и v должны удовлетворять условиям (оба больше 0, но сумма меньше 1)
+    // расчитываем три параметра из матрицы
     float u = dot(T, P) * invDet; // находим из формулы 
-
-    if (u < 0 || u > 1) {
-        return false;
-    }
-
     float v = dot(ray.direction, Q) * invDet;
-
-    if (v < 0 || u + v > 1) {
+    surf.t = dot(E2, Q) * invDet;
+    if ((u < 0 || u > 1) || (v < 0 || u + v > 1)) {
         return false;
     }
 
-    surf.t = dot(E2, Q) * invDet;
-    if (surf.t > tmin && surf.t < tmax) {
+    if (surf.t > tmin && surf.t < tmax) { //проверка границ и присвоение модифицированных значений 
         surf.hit = true;
         surf.hitPoint = float3(surf.t, u, v);
         // находим точку пересечения
@@ -104,25 +131,25 @@ bool Triangle::Intersect(const Ray& ray, float tmin, float tmax, SurfHit& surf) 
 }
 
 // Выровнен по осям координат поэтому строим по 2 точкам
-bool Parallel::Intersect(const Ray& ray, float tmin, float tmax, SurfHit& surf) const
+bool Parallel::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const
 {
 
     // Противоположные грани рассматриваемого прямоугольного параллелепипеда лежат в плоскостях, 
     // паралелльных координатным плоскостям
     // находим для каждой координаты t (координаты вершин параллелепипеда - координаты источника луча / координаты вектора времени)
 
-    float x1 = (t_min.x - ray.origin.x) / ray.direction.x;
-    float x2 = (t_max.x - ray.origin.x) / ray.direction.x;
-    float y1 = (t_min.y - ray.origin.y) / ray.direction.y;
-    float y2 = (t_max.y - ray.origin.y) / ray.direction.y;
-    float z1 = (t_min.z - ray.origin.z) / ray.direction.z;
-    float z2 = (t_max.z - ray.origin.z) / ray.direction.z;
+    float x1 = (a.x - ray.origin.x) / ray.direction.x;
+    float x2 = (b.x - ray.origin.x) / ray.direction.x;
+    float y1 = (a.y - ray.origin.y) / ray.direction.y;
+    float y2 = (b.y - ray.origin.y) / ray.direction.y;
+    float z1 = (a.z - ray.origin.z) / ray.direction.z;
+    float z2 = (b.z - ray.origin.z) / ray.direction.z;
 
 
     // Если оба параметра отрицательны - значит, луч не пересекает эту пару плоскостей, т.е. не пересекает и параллелепипед.
     // берем максимальное значение по осям для ближнего расстояния(tmin) и минимальное для дальнего(tmax).
 
-    float tMin = max(max(min(x1, x2), min(y1, y2)), min(z1, z2)); // находим 
+    float tMin = max(max(min(x1, x2), min(y1, y2)), min(z1, z2));
     float tMax = min(min(max(x1, x2), max(y1, y2)), max(z1, z2));
 
 
@@ -130,7 +157,7 @@ bool Parallel::Intersect(const Ray& ray, float tmin, float tmax, SurfHit& surf) 
 
     // Пересечение с кубоидом существует, если tmin <= tmax и tmax > 0
 
-    if (tMin < tMax && tMax > 0 && surf.t > tmin && surf.t < tmax) {
+    if (tMin < tMax && tMax > 0 && surf.t > t_min && surf.t < t_max) { //проверка границ и присвоение модифицированных значений 
         surf.hit = true;
         surf.hitPoint = ray.origin + surf.t * ray.direction;
         surf.normal = normalize(surf.hitPoint);
@@ -147,10 +174,11 @@ bool Square::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) 
 
     // задается через два треугольника, в которые непосредственно и передаем нужный нам цвет
 
-    if (Triangle(a, b, c, new IdealMirror((float3(199 / float(255), 21 / float(255), 133 / float(255))))).Intersect(ray, t_min, t_max, surf))
+
+    if (Triangle(a, b, c, new IdealMirror(float3(0.0f, 1.0f, 127 / float(255)))).Intersect(ray, t_min, t_max, surf))
         return true;
 
-    if (Triangle(a, d, c, new IdealMirror((float3(199 / float(255), 21 / float(255), 133 / float(255))))).Intersect(ray, t_min, t_max, surf))
+    if (Triangle(a, d, c, new IdealMirror(float3(0.0f, 1.0f, 127 / float(255)))).Intersect(ray, t_min, t_max, surf))
         return true;
 
 

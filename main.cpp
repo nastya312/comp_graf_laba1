@@ -21,7 +21,7 @@ std::vector< std::shared_ptr<GeoObject>> scene()
     auto sphere = std::make_shared<Sphere>(float3(-1.5f, +2.5f, +5.0f), float(1.5f), new IdealMirror(float3(255 / float(215), 255 / float(255), 0 / float(255))));
     auto parallel = std::make_shared<Parallel>(float3(-10.0f, +0.0f, -2.0f), float3(-5.0f, +7.0f, +5.0f), new Defuse(float3(1.0f, 1.0f, 1.0f)));
     auto tr = std::make_shared<Triangle>(float3(+10.0f, +0.0f, +10.0f), float3(10.0f, +10.0f, 0.0f), float3(+10.0f, +0.0f, -10.0f), new IdealMirror(float3(0.5f, 0.5f, 1.0f)));
-    auto square = std::make_shared<Square>(float3(+1.0f, +0.0f, +2.0f), float3(6.0f, +1.0f, 2.0f), float3(+5.0f, +6.0f, 2.0f), new Defuse(float3(0.0f, 0.0f, 0.0f)));
+    auto square = std::make_shared<Square>(float3(+1.0f, +0.0f, +2.0f), float3(6.0f, +1.0f, 2.0f), float3(+5.0f, +6.0f, 2.0f));
     myScene.push_back(square);
     myScene.push_back(tr);
     myScene.push_back(sphere);

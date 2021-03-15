@@ -35,15 +35,14 @@ class Sphere : public GeoObject
 {
 public:
 
-	Sphere(const float3& a_center, const float& a_r, Material* a_m) : GeoObject(a_m), center(a_center), r(a_r), r_sq(a_r* a_r) {}
+	Sphere(const float3& a_center, const float& a_r, Material* a_m) : GeoObject(a_m), center(a_center), radius(a_r) {}
 	~Sphere() = default;
 
 	bool Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const override;
 
 private:
 	float3 center;
-	float r;
-	float r_sq;
+	float radius;
 
 };
 
@@ -57,37 +56,33 @@ public:
 	bool Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const override;
 
 private:
-	float3 a;
-	float3 b;
-	float3 c;
+	float3 a, b, c;
 
 };
 
 class Parallel : public GeoObject {
 public:
-	Parallel(const float3& a_min, const float3& a_max, Material* a_m) :
-		GeoObject(a_m), t_min(a_min), t_max(a_max) {}
+	Parallel(const float3& a, const float3& b, Material* a_m) :
+		GeoObject(a_m), a(a), b(b) {}
 	~Parallel() = default;
 
-	bool Intersect(const Ray& ray, float tmin, float tmax, SurfHit& surf) const override;
+	bool Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const override;
 
 private:
-	float3 t_min;
-	float3 t_max;
+	float3 a, b;
 	// прямоугольный параллелепипед задан вершинами
 };
 
 class Square : public GeoObject {
 public:
-	Square(const float3& a, const float3& b, const float3& c, Material* a_m) : GeoObject(a_m), a(a), b(b), c(c) {}
+	Square(const float3& a, const float3& b, const float3& c) : GeoObject(new Defuse(float3(1.0f, 1.0f, 1.0f))), a(a), b(b), c(c) {}
 	~Square() = default;
 
 	bool Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const override;
 
 private:
-	float3 a;
-	float3 b;
-	float3 c;
+	float3 a, b, c;
+	
 };
 
 #endif //RT_SAMPLE_NEW_GEOMETRY_H

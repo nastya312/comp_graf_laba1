@@ -3,7 +3,6 @@
 #include "Material.h"
 #include "Geometry.h"
 #include <iostream>
-#include "LightSource.h"
 
 
 //Базовый алгоритм трассировки луча

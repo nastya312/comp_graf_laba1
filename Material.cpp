@@ -21,7 +21,7 @@ float3 reflect(const float3& v, const float3& normal)
     // Если поверхность обладает отражающими свойствами, то
     // строится вторичный луч отражения. Направление луча
     // определяется по закону отражения(геометрическая оптика) :
-    // r = i – 2 · n ·(n · i)
+    // i – 2 · n ·(n · i)
     return v - 2 * dot(v, normal) * normal;
 }
 
@@ -49,12 +49,7 @@ bool Defuse::Scatter(const Ray& ray_in, const SurfHit& surf, float3& attenuation
     // a и b равно произведению норм векторов на косинус угла между векторами: a*b = |a| |b| cos(alpha(a,b)). 
     // Если взять векторы единичной длины, то простейшее скалярное произведение даст нам интенсивность освещения поверхности.
 
-    /*float3 reflection_dir = reflect(normalize(ray_in.direction), surf.normal);
-
-    ray_out = Ray(surf.hitPoint + surf.normal * 1e-4, reflection_dir);*/
-
-    // ray_out = Ray(surf.hitPoint + surf.normal * 1e-4, float3(rand()%100, rand() % 100, rand() % 100));
 
     attenuation = color * max(kd, 0.0f); // умножаем на косинус - нашу интенсивность света
-    return false; // (dot(ray_out.direction, surf.normal) > 0);
+    return false;
 }
