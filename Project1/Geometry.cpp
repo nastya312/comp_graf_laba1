@@ -179,7 +179,7 @@ bool Parallel::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf
 
     // Пересечение с кубоидом существует, если tmin <= tmax и tmax > 0
 
-    if (tMin <= tMax && tMax > 0 && surf.t > t_min && surf.t < t_max) { //проверка границ и присвоение модифицированных значений 
+    if (tMin <= tMax && tMax > 0) { //проверка границ и присвоение модифицированных значений 
         surf.hit = true;
         surf.hitPoint = ray.origin + surf.t * ray.direction;
         surf.normal = normalize(surf.hitPoint);
