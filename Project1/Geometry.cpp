@@ -38,7 +38,6 @@ bool Sphere::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) 
 
     if (discriminant < 0) return false;
 
-   //  
    
      auto root1 = (-b - sqrt(discriminant)) / 2 * a; // первый корень
      auto root2 = (-b + sqrt(discriminant)) / 2 * a; // второй корень 
@@ -69,52 +68,57 @@ bool Sphere::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) 
     return false;
 }
 
-//void create_triangle(const Ray& ray, float3 a, float3 b, float3 c)
-//{
-//    float3 E1 = b - a; // вектор одной стороны
-//    float3 E2 = c - a; // вектор второй стороны
-//    float3 T = ray.origin - a; // a - точка, которую мы перенесли в новый центр координат (барицентрические координаты)
-//    float3 D = ray.direction; // вектор скорости
-//    float3 P = cross(D, E2);
-//    float3 Q = cross(T, E1);
-//    float det = dot(E1, P); // время
-//
-//    if (det < tmin && det > tmax) {
-//        return false;
-//    }
-//
-//    float invDet = 1 / det;
-//
-//    // барицентрические координаты u и v должны удовлетворять условиям (оба больше 0, но сумма меньше 1)
-//    // расчитываем три параметра из матрицы
-//    float u = dot(T, P) * invDet; // находим из формулы 
-//    float v = dot(ray.direction, Q) * invDet;
-//    surf.t = dot(E2, Q) * invDet;
-//
-//    if ((u < 0 || u > 1) || (v < 0 || u + v > 1)) {
-//        return false;
-//    }
-//}
 
 bool Triangle::Intersect(const Ray& ray, float tmin, float tmax, SurfHit& surf) const
 {
+    //float3 v0v1 = b - a;
+    //float3 v0v2 = c - a;
+    ////float kEpsilon = 1e-8;
+
+
+    //float3 pvec = cross(ray.direction,v0v2);
+    //float det = dot(v0v1,pvec);
+
+    ////// if the determinant is negative the triangle is backfacing
+    ////// if the determinant is close to 0, the ray misses the triangle
+    //if (det < tmin) return false;
+
+    ////// ray and triangle are parallel if det is close to 0
+    //if (fabs(det) < tmin) return false;
+
+    //float invDet = 1 / det;
+
+    //float3 tvec = ray.origin - a;
+    //auto u = dot(tvec,pvec) * invDet;
+    //if (u < 0 || u > 1) return false;
+
+    //float3 qvec = cross(tvec,v0v1);
+    //float v = dot(ray.direction, qvec) * invDet;
+    //if (v < 0 || u + v > 1) return false;
+
+    //float t = dot(v0v2,qvec) * invDet;
+
+    //surf.t = t;
+
     float3 E1 = b - a; // вектор одной стороны
     float3 E2 = c - a; // вектор второй стороны
     float3 T = ray.origin - a; // a - точка, которую мы перенесли в новый центр координат (барицентрические координаты)
     float3 D = ray.direction; // вектор скорости
-    float3 P = cross(D, E2);
+    float3 P1 = cross(D, E2);
     float3 Q = cross(T, E1);
-    float det = dot(E1, P); // время
+    float det = dot(E1, P1); // время
+    
     if (det < tmin && det > tmax) {
         return false;
     }
+    
     float invDet = 1 / det;
     // барицентрические координаты u и v должны удовлетворять условиям (оба больше 0, но сумма меньше 1)
     // расчитываем три параметра из матрицы
-    float u = dot(T, P) * invDet; // находим из формулы 
+    float u = dot(T, P1) * invDet; // находим из формулы 
     float v = dot(ray.direction, Q) * invDet;
     surf.t = dot(E2, Q) * invDet;
-    if ((u < 0 || u > 1) || (v < 0 || u + v > 1)) {
+    if ((u < 0) || (v < 0 || u + v > 1)) {
         return false;
     }
 
@@ -127,6 +131,24 @@ bool Triangle::Intersect(const Ray& ray, float tmin, float tmax, SurfHit& surf) 
         surf.m_ptr = m_ptr;
         return true;
     }
+    return false;
+}
+
+bool Square::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const
+{
+    float3 d = float3(a.x + c.x - b.x, a.y + c.y - b.y, a.z + a.z - b.z); // четвертая точка квадрата
+
+
+    // задается через два треугольника, в которые непосредственно и передаем нужный нам цвет
+
+
+    if (Triangle(a, b, c, new IdealMirror(float3(0.0f, 1.0f, 127 / float(255)))).Intersect(ray, t_min, t_max, surf))
+        return true;
+
+    if (Triangle(a, d, c, new IdealMirror(float3(0.0f, 1.0f, 127 / float(255)))).Intersect(ray, t_min, t_max, surf))
+        return true;
+
+
     return false;
 }
 
@@ -157,30 +179,12 @@ bool Parallel::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf
 
     // Пересечение с кубоидом существует, если tmin <= tmax и tmax > 0
 
-    if (tMin < tMax && tMax > 0 && surf.t > t_min && surf.t < t_max) { //проверка границ и присвоение модифицированных значений 
+    if (tMin <= tMax && tMax > 0 && surf.t > t_min && surf.t < t_max) { //проверка границ и присвоение модифицированных значений 
         surf.hit = true;
         surf.hitPoint = ray.origin + surf.t * ray.direction;
         surf.normal = normalize(surf.hitPoint);
         surf.m_ptr = m_ptr;
         return true;
     }
-    return false;
-}
-
-bool Square::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const
-{
-    float3 d = float3(a.x + c.x - b.x, a.y + c.y - b.y, a.z + a.z - b.z); // четвертая точка квадрата
-
-
-    // задается через два треугольника, в которые непосредственно и передаем нужный нам цвет
-
-
-    if (Triangle(a, b, c, new IdealMirror(float3(0.0f, 1.0f, 127 / float(255)))).Intersect(ray, t_min, t_max, surf))
-        return true;
-
-    if (Triangle(a, d, c, new IdealMirror(float3(0.0f, 1.0f, 127 / float(255)))).Intersect(ray, t_min, t_max, surf))
-        return true;
-
-
     return false;
 }

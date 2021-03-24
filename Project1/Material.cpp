@@ -33,13 +33,14 @@ bool IdealMirror::Scatter(const Ray& ray_in, const SurfHit& surf, float3& attenu
     ray_out = Ray(surf.hitPoint + surf.normal * 1e-4, reflection_dir);
     // сместить исходную точку, чтобы избежать перекрытия самим объектом
 
+
     attenuation = color;
 
     return (dot(ray_out.direction, surf.normal) > 0);
     // проверяется косинус больше нуля
 }
 
-bool Defuse::Scatter(const Ray& ray_in, const SurfHit& surf, float3& attenuation, Ray& ray_out)
+bool Diffuse::Scatter(const Ray& ray_in, const SurfHit& surf, float3& attenuation, Ray& ray_out)
 {
     float kd = dot(normalize(surf.normal), ray_in.direction);
     // высчитывается косинус через единичные вектора 
@@ -50,6 +51,6 @@ bool Defuse::Scatter(const Ray& ray_in, const SurfHit& surf, float3& attenuation
     // Если взять векторы единичной длины, то простейшее скалярное произведение даст нам интенсивность освещения поверхности.
 
 
-    attenuation = color * max(kd, 0.0f); // умножаем на косинус - нашу интенсивность света
+    attenuation = 0.8 * color * max(kd, 0.0f); // умножаем на косинус - нашу интенсивность света
     return false;
 }

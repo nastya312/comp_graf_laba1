@@ -75,7 +75,7 @@ private:
 
 class Square : public GeoObject {
 public:
-	Square(const float3& a, const float3& b, const float3& c) : GeoObject(new Defuse(float3(1.0f, 1.0f, 1.0f))), a(a), b(b), c(c) {}
+	Square(const float3& a, const float3& b, const float3& c) : GeoObject(new Diffuse(float3(1.0f, 1.0f, 1.0f))), a(a), b(b), c(c) {}
 	~Square() = default;
 
 	bool Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const override;
