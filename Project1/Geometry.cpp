@@ -136,11 +136,10 @@ bool Triangle::Intersect(const Ray& ray, float tmin, float tmax, SurfHit& surf) 
 
 bool Square::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const
 {
-    float3 d = float3(a.x + c.x - b.x, a.y + c.y - b.y, a.z + a.z - b.z); // четвертая точка квадрата
+    float3 d = float3(a.x + c.x - b.x, a.y + c.y - b.y, a.z + c.z - b.z); // четвертая точка квадрата
 
 
     // задается через два треугольника, в которые непосредственно и передаем нужный нам цвет
-
 
     if (Triangle(a, b, c, new IdealMirror(float3(0.0f, 1.0f, 127 / float(255)))).Intersect(ray, t_min, t_max, surf))
         return true;
@@ -148,9 +147,18 @@ bool Square::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) 
     if (Triangle(a, d, c, new IdealMirror(float3(0.0f, 1.0f, 127 / float(255)))).Intersect(ray, t_min, t_max, surf))
         return true;
 
-
-    return false;
+       return false;
 }
+
+//bool Square::Intersect(const Ray& ray, float tmin, float tmax, SurfHit& surf) const
+//{
+//    if (!Plane::Intersect(ray, tmin, tmax, surf))
+//        return false;
+//
+//    float u = (surf.hitPoint.x - point.x) / l;
+//    float v = (surf.hitPoint.y - point.y) / l;
+//    return !(u < 0 || v < 0 || u > 1 || v > 1);
+//}
 
 // Выровнен по осям координат поэтому строим по 2 точкам
 bool Parallel::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const

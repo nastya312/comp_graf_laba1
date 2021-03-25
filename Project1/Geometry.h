@@ -26,8 +26,9 @@ public:
 
 	bool Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf) const override;
 
-private:
 	float3 point;
+
+private:
 	float3 normal;
 };
 
@@ -84,5 +85,18 @@ private:
 	float3 a, b, c;
 	
 };
+
+//class Square : public Plane
+//{
+//public:
+//	Square(const float3 a_point, const float& a_l, Material* a_m) :
+//		Plane(a_point, float3(+0.0f, +0.0f, +1.0f), a_m), l(a_l) {}
+//	~Square() = default;
+//
+//	bool Intersect(const Ray& ray, float tmin, float tmax, SurfHit& surf) const override;
+//
+//private:
+//	float l, r_sqr;
+//};
 
 #endif //RT_SAMPLE_NEW_GEOMETRY_H
