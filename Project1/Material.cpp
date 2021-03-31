@@ -50,7 +50,14 @@ bool Diffuse::Scatter(const Ray& ray_in, const SurfHit& surf, float3& attenuatio
     // a и b равно произведению норм векторов на косинус угла между векторами: a*b = |a| |b| cos(alpha(a,b)). 
     // Если взять векторы единичной длины, то простейшее скалярное произведение даст нам интенсивность освещения поверхности.
 
-
-    attenuation = 0.8 * color * max(kd, 0.0f); // умножаем на косинус - нашу интенсивность света
+    if (kd > 0)
+    {
+        attenuation = color *  kd;
+    }
+    else
+    {
+        attenuation = float3(0.0f,0.0f,0.0f);
+    }
+    // умножаем на косинус - нашу интенсивность света
     return false;
 }

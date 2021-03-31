@@ -60,9 +60,8 @@ float3 SimpleRT::WhittedTraceRay(const Ray& ray, const std::vector<std::shared_p
 	float tnear = std::numeric_limits<float>::max();
 	int   geoIndex = -1;
 
-	float3 chang_color(1.0f, 1.0f, 1.0f); // цвет, который меняется в процессе цикла
+	//float3 chang_color(1.0f, 1.0f, 1.0f); // цвет, который меняется в процессе цикла
 
-	//float3 surfColor(0.0f, 0.0f, 0.0f);
 	float3 сolor(0.0f, 0.0f, 0.0f);
 
 	SurfHit surf;
@@ -89,7 +88,7 @@ float3 SimpleRT::WhittedTraceRay(const Ray& ray, const std::vector<std::shared_p
 
 		return (1.0f - t) * float3(1.0f, 1.0f, 1.0f) + t * bg_color;
 	}
-;
+	;
 	if (dot(ray.direction, surf.normal) > 0)
 	{
 		surf.normal = -surf.normal;
@@ -99,7 +98,7 @@ float3 SimpleRT::WhittedTraceRay(const Ray& ray, const std::vector<std::shared_p
 
 	Ray scattered;
 	if (typeid(*surf.m_ptr).name() == typeid(Diffuse).name()) {
-		//chang_color = float3(0.0f, 0.0f, 0.0f); //Color c = (0, 0, 0)
+		
 		float3 attenuation;
 
 		// для всех источников цвета
@@ -113,91 +112,21 @@ float3 SimpleRT::WhittedTraceRay(const Ray& ray, const std::vector<std::shared_p
 			if (!ShadowRay(shadow, geo))
 			{
 				surf.m_ptr->Scatter(rayIn, surf, attenuation, scattered);
-				chang_color = chang_color + attenuation * light_source[i]->color; // изменяется цвет в соответсвии с результатом
+				сolor = сolor + attenuation * light_source[i]->color; // изменяется цвет в соответсвии с результатом
 			}
 		}
-		сolor = chang_color;
+		return сolor;
 	}
-	else if (surf.m_ptr->Scatter(chang_ray, surf, сolor, scattered))
+	else if (typeid(*surf.m_ptr).name() == typeid(IdealMirror).name())
 	{
+		surf.m_ptr->Scatter(chang_ray, surf, сolor, scattered);
 		chang_ray = scattered;
+		if (depth < max_ray_depth)
+			return сolor * WhittedTraceRay(chang_ray, geo, light_source, depth + 1);
+		else return сolor;
 	}
-	else {
-		chang_color = float3(0.0f, 0.0f, 0.0f); // присваивает черный цвет, если не соответсвует ни единому условию 
-	}
-
-
-
-	if (depth < max_ray_depth) //&& surf.m_ptr->Scatter(chang_ray, surf, surfColor, scattered))
-	{
-		return сolor * WhittedTraceRay(scattered, geo, light_source, depth + 1);
-	}
-	else
-	{
-		return float3(0.0f, 0.0f, 0.0f);
-	}
-
-
-
-
-	//// While (depth < MAX_DEPTH) 
-	//while (depth < max_ray_depth) {
-
-	//	color = color * chang_color; // в начале каждого меняем цвет в зависимости от произошедших изменений
-
-	//	float tnear = std::numeric_limits<float>::max();
-	//	int   geoIndex = -1;
-
-	//	SurfHit surf;
-
-	//	// поиск объектов, с которыми пересекается луч и соотвественно точек пересечения
-	//	for (int i = 0; i < geo.size(); ++i) {
-	//		SurfHit temp;
-
-	//		if (geo.at(i)->Intersect(chang_ray, 0.001, tnear, temp)) {
-	//			if (temp.t < tnear) {
-	//				// перебераются точки, выбирается нужная
-	//				tnear = temp.t;
-	//				geoIndex = i;
-	//				surf = temp;
-	//			}
-	//		}
-	//	}
-
-	//	//если пересечения нет, вычисляется цвет фона
-	//	// так как 
-	//	if (geoIndex == -1) {
-	//		float3 unit_direction = normalize(chang_ray.direction);
-	//		float t = 0.5f * (unit_direction.y + 1.0f);
-	//		chang_color = (1.0f - t) * float3(1.0f, 1.0f, 1.0f) + t * bg_color;
-	//		// c = c + background_color
-
-
-	//		break;
-	//	}
-
-	//	if (dot(chang_ray.direction, surf.normal) > 0) {
-	//		surf.normal = -surf.normal;
-	//	}
-
-	//	Ray scattered; // луч, необходимый для работы с материалами (ray_out, выходящий луч)
-
-	//	// определяем материал, после чего для каждого источника света генерируется теневой луч
-	//	// в сторону источника
-	
-
-	//	// изменяется цвет, генрируется луч и находится пересечение с зеркалом
-	//	else if (surf.m_ptr->Scatter(chang_ray, surf, chang_color, scattered)) {
-	//		chang_ray = scattered; // ray = new_ray
-	//		depth++; // depth += 1
-	//	}
-	//	else {
-	//		chang_color = float3(0.0f, 0.0f, 0.0f); // присваивает черный цвет, если не соответсвует ни единому условию 
-	//		depth++;
-	//	}
-	//}
-	//return color * chang_color;
-
+	else 
+		return float3(0.0f, 0.0f, 0.0f); // присваивает черный цвет, если не соответсвует ни единому условию 
 }
 
 

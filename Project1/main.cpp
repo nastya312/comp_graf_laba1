@@ -18,9 +18,9 @@ std::vector< std::shared_ptr<GeoObject>> scene()
     myScene.push_back(plane1);
 
 
-    auto sphere = std::make_shared<Sphere>(float3(-1.5f, +2.5f, +5.0f), float(1.5f), new IdealMirror((float3(float(30) / float(255), float(144) / float(255), float(255) / float(255)))));
+    auto sphere = std::make_shared<Sphere>(float3(-1.5f, +2.5f, +5.0f), float(1.5f), new Diffuse((float3(float(30) / float(255), float(144) / float(255), float(255) / float(255)))));
     auto parallel = std::make_shared<Parallel>(float3(-10.0f, +0.0f, -2.0f), float3(-5.0f, +7.0f, +5.0f), new Diffuse(float3(0.0f, 0.0f, float(128)/ float(255))));
-    auto tr = std::make_shared<Triangle>(float3(+10.0f, +0.0f, +10.0f), float3(10.0f, +10.0f, 0.0f), float3(+10.0f, +0.0f, -10.0f), new IdealMirror(float3(255 / float(255), 255 / float(255), 0 / float(255))));
+    auto tr = std::make_shared<Triangle>(float3(+10.0f, +0.0f, +10.0f), float3(10.0f, +10.0f, 0.0f), float3(+10.0f, +0.0f, -10.0f), new Diffuse(float3(255 / float(255), 255 / float(255), 0 / float(255))));
     auto square = std::make_shared<Square>(float3(2.5f, +2.5f, +6.0f), float3(2.5f, +6.0f, 6.0f), float3(+6.0f, +6.0f, 6.0f));
     //auto square = std::make_shared<Square>(float3(+1.0f, +0.0f, +2.0f), float(6.0f), new IdealMirror(float3(255 / float(255), 191 / float(255), 255 / float(255))));
     myScene.push_back(square);
@@ -34,9 +34,9 @@ std::vector< std::shared_ptr<GeoObject>> scene()
 std::vector< std::shared_ptr<Point_light>> light()
 {
     std::vector<std::shared_ptr<Point_light>> mylight;
-   // auto light1 = std::make_shared<Point_light>(float3(-1.0f, 12.0f, 4.0f), float3(+5.0f, +6.0f, 2.0f));
-    auto light2 = std::make_shared<Point_light>(float3(-1.0f, 12.0f, 4.0f), float3(5.0f, 6.0f, 2.0f));
-    //mylight.push_back(light1);
+   auto light1 = std::make_shared<Point_light>(float3(-1.0f, 12.0f, 4.0f), float3(+5.0f, +6.0f, 2.0f));
+    auto light2 = std::make_shared<Point_light>(float3(5.0f, 12.0f, 5.0f), float3(5.0f, 6.0f, 2.0f));
+    mylight.push_back(light1);
     mylight.push_back(light2);
 
     return mylight;

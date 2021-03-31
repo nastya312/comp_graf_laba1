@@ -175,19 +175,32 @@ bool Parallel::Intersect(const Ray& ray, float t_min, float t_max, SurfHit& surf
     float z1 = (a.z - ray.origin.z) / ray.direction.z;
     float z2 = (b.z - ray.origin.z) / ray.direction.z;
 
+    //if ((x1 > y2) || (y1 > x2))
+    //    return false;
+    //if (y1 > x1)
+    //    x1 = y1;
+    //if (y2 < x2)
+    //    x2 = y2;
+
+    //if ((x1 > z2) || (z1 > x2))
+    //    return false;
+    //if (z1 > x1)
+    //    x1 = z1;
+    //if (z2 < x2)
+    //    x2 = z2;
 
     // Если оба параметра отрицательны - значит, луч не пересекает эту пару плоскостей, т.е. не пересекает и параллелепипед.
     // берем максимальное значение по осям для ближнего расстояния(tmin) и минимальное для дальнего(tmax).
 
-    float tMin = max(max(min(x1, x2), min(y1, y2)), min(z1, z2));
-    float tMax = min(min(max(x1, x2), max(y1, y2)), max(z1, z2));
+     float tMin = max(max(min(x1, x2), min(y1, y2)), min(z1, z2));
+     float tMax = min(min(max(x1, x2), max(y1, y2)), max(z1, z2));
 
 
-    surf.t = tMin;
+     surf.t = tMin;
 
     // Пересечение с кубоидом существует, если tmin <= tmax и tmax > 0
 
-    if (tMin <= tMax && tMax > 0) { //проверка границ и присвоение модифицированных значений 
+    if (((tMin < tMax) && (tMax >= 0)) && (surf.t > t_min && surf.t < t_max)){ //проверка границ и присвоение модифицированных значений 
         surf.hit = true;
         surf.hitPoint = ray.origin + surf.t * ray.direction;
         surf.normal = normalize(surf.hitPoint);
